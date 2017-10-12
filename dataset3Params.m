@@ -23,6 +23,8 @@ sigma = 0.3;
 %        mean(double(predictions ~= yval))
 %
 
+% Set up a vector with the logrithically-separated
+% values indicated in the assignment PDF
 val = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30];
 err = zeros(length(val));
 
@@ -30,15 +32,23 @@ for i = 1:length(val)
     C_val = val(i);
     for j = 1:length(val)
          sigma_val = val(j);
+         % For each cell in the i x j matrix, err
+         % train the SVM using each combination of C and sigma
          model = svmTrain(X, y, C_val, @(x1, x2) gaussianKernel(x1, x2, sigma_val));
+         % Determine how well it separates the values
          predictions = svmPredict(model, Xval);
+         % Store that metric in the err matrix
          err(i, j) = mean(double(predictions ~= yval));
     end
 end
 
+% Identify the cell with minimum error
 minErr = min(min(err));
 
+% Extract the C and sigma values from the determined cell
 [c_ind, sig_ind] = find(err == minErr);
+
+% Assign the value of the given indexes of C and sigma
 C = val(c_ind); sigma = val(sig_ind);
 
 % =========================================================================
